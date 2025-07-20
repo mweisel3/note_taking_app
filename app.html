@@ -61,6 +61,8 @@
         
         <div class="flex justify-end gap-2">
              <button id="save-app-btn" class="text-sm bg-green-600 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-700">Save Work (Download App)</button>
+             <!-- NEW: Clear All Button -->
+             <button id="clear-all-btn" class="text-sm bg-red-100 text-red-700 font-semibold py-1 px-3 rounded-md hover:bg-red-200">Clear All Notes</button>
         </div>
 
         <div>
@@ -114,6 +116,7 @@
         const exportMdBtn = document.getElementById('export-md-btn');
         const exportHtmlBtn = document.getElementById('export-html-btn');
         const saveAppBtn = document.getElementById('save-app-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn'); // NEW
         const notification = document.getElementById('notification');
         const previewContainer = document.getElementById('preview-container');
         const previewOutput = document.getElementById('preview-output');
@@ -232,6 +235,18 @@
             showNotification('✅ App with current notes saved!');
         });
 
+        // NEW: Clear All functionality
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all notes? This will reset the app to its default state.')) {
+                mainTopicInput.value = '';
+                summaryTextarea.value = '';
+                notesContainer.innerHTML = '';
+                createNotePair();
+                updateMoveButtons();
+                showNotification('Notes have been cleared.');
+            }
+        });
+
         window.addEventListener('load', loadState);
 
         function showNotification(message) {
@@ -250,7 +265,6 @@
 
         // --- EXPORT LOGIC ---
         exportMdBtn.addEventListener('click', () => {
-            // Markdown export remains the same, as it should preserve raw markdown
             const topic = mainTopicInput.value.trim();
             const summary = summaryTextarea.value.trim();
             const notePairs = document.querySelectorAll('.note-pair');
@@ -260,7 +274,6 @@
                 const notes = pair.querySelector('.notes-input').value.trim();
                 if (cue || notes) {
                     notesContent += `> [!QUESTION]- ${cue}\n`;
-                    // We don't parse markdown here, just ensure it's nested
                     notes.split('\n').forEach(line => {
                         notesContent += `> ${line}\n`;
                     });
@@ -287,7 +300,6 @@
             notePairs.forEach(pair => {
                 pairId++;
                 const cue = pair.querySelector('.cue-input').value.trim();
-                // UPDATED: Use marked.js to parse notes from Markdown to HTML
                 const notesMarkdown = pair.querySelector('.notes-input').value.trim();
                 const notesParsedHtml = marked.parse(notesMarkdown);
 
@@ -314,7 +326,7 @@
                 <div class="prose max-w-none bg-white p-6 rounded-lg shadow-sm editable-summary">${marked.parse(summary)}</div>
             </div>`;
             }
-            const htmlTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${topic}</title><script src="https://cdn.tailwindcss.com"><\/script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script><style>body{font-family:'Inter',sans-serif}.indicator{transition:transform .2s}.expanded .indicator{transform:rotate(90deg)}[contenteditable]:focus{outline:2px solid #60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.4)}.prose table{width:100%;border-collapse:collapse;margin-top:1em;margin-bottom:1em}.prose th,.prose td{border:1px solid #e2e8f0;padding:8px}.prose th{background-color:#f8fafc;font-weight:600}.prose img{max-width:100%;height:auto;border-radius:8px;margin-top:1em;margin-bottom:1em}<\/style></head><body class="bg-slate-100 text-slate-700 p-4 md:p-8"><div class="max-w-6xl mx-auto"><header class="text-center mb-8"><h1 class="text-4xl font-extrabold text-slate-900 editable-topic">${topic}</h1></header><div class="flex justify-end gap-2 mb-4"><button id="edit-btn" class="bg-yellow-500 text-white font-semibold text-sm py-1 px-3 rounded-md hover:bg-yellow-600">Enable Editing</button><button id="save-btn" class="bg-green-600 text-white font-semibold text-sm py-1 px-3 rounded-md hover:bg-green-700 hidden">Save Changes</button><button id="expand-all" class="bg-blue-100 text-blue-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-blue-200">Expand All</button><button id="collapse-all" class="bg-gray-200 text-gray-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-gray-300">Collapse All</button></div><main class="space-y-3">${notesHtml}</main>${summaryHtml}</div><script>function toggleSection(e,t){const n=e.dataset.target,o=document.getElementById(n),d=void 0===t?!o.classList.contains("hidden"):!t;d?(o.classList.add("hidden"),e.classList.remove("expanded")):(o.classList.remove("hidden"),e.classList.add("expanded"))}document.querySelectorAll(".cue-trigger").forEach(e=>{e.addEventListener("click",()=>toggleSection(e))}),document.getElementById("expand-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!0))}),document.getElementById("collapse-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!1))}),document.getElementById("edit-btn").addEventListener("click",()=>{document.querySelectorAll(".editable-topic, .editable-cue, .editable-notes, .editable-summary").forEach(e=>{e.innerHTML=marked.parse(e.innerText);e.setAttribute("contenteditable","true")}),document.getElementById("edit-btn").classList.add("hidden"),document.getElementById("save-btn").classList.remove("hidden")}),document.getElementById("save-btn").addEventListener("click",()=>{document.body.style.display="none";const e=document.documentElement.outerHTML,t=new Blob([e],{type:"text/html"}),n=document.createElement("a");n.href=URL.createObjectURL(t);const o=document.querySelector("title").textContent.toLowerCase().replace(/ /g,"-")+"-notes.html";n.download=o,document.body.appendChild(n),n.click(),document.body.removeChild(n),setTimeout(()=>{document.body.style.display=""},100)});<\/script></body></html>`;
+            const htmlTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${topic}</title><script src="https://cdn.tailwindcss.com"><\/script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script><style>body{font-family:'Inter',sans-serif}.indicator{transition:transform .2s}.expanded .indicator{transform:rotate(90deg)}[contenteditable]:focus{outline:2px solid #60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.4)}.prose table{width:100%;border-collapse:collapse;margin-top:1em;margin-bottom:1em}.prose th,.prose td{border:1px solid #e2e8f0;padding:8px}.prose th{background-color:#f8fafc;font-weight:600}.prose img{max-width:100%;height:auto;border-radius:8px;margin-top:1em;margin-bottom:1em}<\/style></head><body class="bg-slate-100 text-slate-700 p-4 md:p-8"><div class="max-w-6xl mx-auto"><header class="text-center mb-8"><h1 class="text-4xl font-extrabold text-slate-900 editable-topic">${topic}</h1></header><div class="flex justify-end gap-2 mb-4"><button id="edit-btn" class="bg-yellow-500 text-white font-semibold text-sm py-1 px-3 rounded-md hover:bg-yellow-600">Enable Editing</button><button id="save-btn" class="bg-green-600 text-white font-semibold text-sm py-1 px-3 rounded-md hover:bg-green-700 hidden">Save Changes</button><button id="expand-all" class="bg-blue-100 text-blue-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-blue-200">Expand All</button><button id="collapse-all" class="bg-gray-200 text-gray-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-gray-300">Collapse All</button></div><main class="space-y-3">${notesHtml}</main>${summaryHtml}</div><script>function toggleSection(e,t){const n=e.dataset.target,o=document.getElementById(n),d=void 0===t?!o.classList.contains("hidden"):!t;d?(o.classList.add("hidden"),e.classList.remove("expanded")):(o.classList.remove("hidden"),e.classList.add("expanded"))}document.querySelectorAll(".cue-trigger").forEach(e=>{e.addEventListener("click",()=>toggleSection(e))}),document.getElementById("expand-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!0))}),document.getElementById("collapse-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!1))}),document.getElementById("edit-btn").addEventListener("click",()=>{document.querySelectorAll(".editable-topic, .editable-cue, .editable-notes, .editable-summary").forEach(e=>{e.setAttribute("contenteditable","true")}),document.getElementById("edit-btn").classList.add("hidden"),document.getElementById("save-btn").classList.remove("hidden")}),document.getElementById("save-btn").addEventListener("click",()=>{document.body.style.display="none";const e=document.documentElement.outerHTML,t=new Blob([e],{type:"text/html"}),n=document.createElement("a");n.href=URL.createObjectURL(t);const o=document.querySelector("title").textContent.toLowerCase().replace(/ /g,"-")+"-notes.html";n.download=o,document.body.appendChild(n),n.click(),document.body.removeChild(n),setTimeout(()=>{document.body.style.display=""},100)});<\/script></body></html>`;
             const blob = new Blob([htmlTemplate], { type: 'text/html' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
