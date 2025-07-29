@@ -64,6 +64,7 @@
         </header>
         
         <div class="flex justify-end gap-2">
+             <button id="bulk-add-btn" class="text-sm bg-purple-100 text-purple-700 font-semibold py-1 px-3 rounded-md hover:bg-purple-200">Bulk Add</button>
              <button id="load-app-btn" class="text-sm bg-blue-100 text-blue-700 font-semibold py-1 px-3 rounded-md hover:bg-blue-200">Load from File</button>
              <button id="save-app-btn" class="text-sm bg-green-600 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-700">Save Work</button>
              <button id="clear-all-btn" class="text-sm bg-red-100 text-red-700 font-semibold py-1 px-3 rounded-md hover:bg-red-200">Clear All</button>
@@ -106,6 +107,30 @@
              <textarea id="preview-output" readonly class="w-full h-64 p-3 bg-slate-900 text-slate-100 font-mono text-sm border border-slate-600 rounded-lg resize-y"></textarea>
         </div>
     </div>
+
+    <!-- NEW: Bulk Add Modal -->
+    <div id="bulk-add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl space-y-4">
+            <h2 class="text-xl font-bold">Bulk Add Notes</h2>
+            <div>
+                <p class="text-sm text-slate-600">Paste your notes below. Use a line with only <code class="bg-slate-200 text-slate-800 px-1 rounded">---</code> to separate a cue from its notes. Use a blank line to separate each cue/note pair.</p>
+                <p class="text-sm text-slate-600 mt-1"><strong>Example:</strong></p>
+                <pre class="bg-slate-100 p-2 rounded text-xs mt-1">What is the first question?
+---
+- Note 1
+- Note 2
+
+What is the second question?
+---
+- Note for question 2</pre>
+            </div>
+            <textarea id="bulk-input-area" class="w-full h-64 p-2 border rounded font-mono text-sm"></textarea>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-bulk-add" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg">Cancel</button>
+                <button id="import-bulk-add" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg">Import Notes</button>
+            </div>
+        </div>
+    </div>
     
     <script id="app-state" type="application/json"></script>
 
@@ -125,6 +150,11 @@
         const previewOutput = document.getElementById('preview-output');
         const copyBtn = document.getElementById('copy-btn');
         const closePaneBtn = document.getElementById('close-pane-btn');
+        const bulkAddBtn = document.getElementById('bulk-add-btn');
+        const bulkAddModal = document.getElementById('bulk-add-modal');
+        const cancelBulkAddBtn = document.getElementById('cancel-bulk-add');
+        const importBulkAddBtn = document.getElementById('import-bulk-add');
+        const bulkInputArea = document.getElementById('bulk-input-area');
 
         function populateAppFromState(state) {
             mainTopicInput.value = state.topic || '';
@@ -132,9 +162,7 @@
             notesContainer.innerHTML = ''; 
             if (state.pairs && state.pairs.length > 0) {
                 state.pairs.forEach(pairData => createNotePair(pairData.cue, pairData.notes, pairData.isImportant));
-            } else {
-                createNotePair();
-            }
+            } else { createNotePair(); }
             updateMoveButtons();
         }
 
@@ -148,15 +176,11 @@
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(content, 'text/html');
                         const stateElement = doc.getElementById('app-state');
-                        if (!stateElement || !stateElement.textContent) {
-                            throw new Error('Could not find saved data in this HTML file.');
-                        }
+                        if (!stateElement || !stateElement.textContent) throw new Error('Could not find saved data in this HTML file.');
                         state = JSON.parse(stateElement.textContent);
                     } else if (file.name.endsWith('.md')) {
                         state = parseMarkdownToState(content);
-                    } else {
-                        throw new Error('Unsupported file type. Please upload .html or .md');
-                    }
+                    } else { throw new Error('Unsupported file type.'); }
                     populateAppFromState(state);
                     showNotification('✅ Notes loaded successfully!');
                 } catch (e) {
@@ -170,10 +194,8 @@
         function parseMarkdownToState(markdown) {
             const topicMatch = markdown.match(/^# (.*)/m);
             const topic = topicMatch ? topicMatch[1] : '';
-
             const summaryBlockMatch = markdown.match(/> \[!SUMMARY\] Summary\n((?:> .*\n?)*)/m);
             const summary = summaryBlockMatch ? summaryBlockMatch[1].replace(/> /g, '').replace(/>/g, '').trim() : '';
-
             const pairs = [];
             const questionRegex = /> \[!QUESTION\]- (.*?)\n((?:> .*\n?)*)/g;
             let match;
@@ -184,7 +206,6 @@
                 const notes = match[2].replace(/^> /gm, '').replace(/^>/gm, '').trim();
                 pairs.push({ cue, notes, isImportant });
             }
-            
             return { topic, summary, pairs };
         }
 
@@ -200,26 +221,11 @@
             const notePair = document.createElement('div');
             notePair.className = 'note-pair p-5 bg-slate-50 rounded-xl space-y-4';
             if (isImportant) notePair.classList.add('is-important');
-            
-            notePair.innerHTML = `
-                <div class="flex justify-end items-center gap-2">
-                    <button class="control-btn star-btn" title="Mark as important">⭐</button>
-                    <button class="control-btn move-up-btn" title="Move Up">▲</button>
-                    <button class="control-btn move-down-btn" title="Move Down">▼</button>
-                    <button class="control-btn remove-btn text-red-500" title="Remove">×</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="md:col-span-1"><label class="block text-sm font-medium text-slate-600 mb-1">Cue / Question</label><textarea rows="3" class="cue-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${cue}</textarea></div>
-                    <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-600 mb-1">Notes (Markdown supported)</label><textarea rows="3" class="notes-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${notes}</textarea></div>
-                </div>`;
+            notePair.innerHTML = `<div class="flex justify-end items-center gap-2"><button class="control-btn star-btn" title="Mark as important">⭐</button><button class="control-btn move-up-btn" title="Move Up">▲</button><button class="control-btn move-down-btn" title="Move Down">▼</button><button class="control-btn remove-btn text-red-500" title="Remove">×</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="md:col-span-1"><label class="block text-sm font-medium text-slate-600 mb-1">Cue / Question</label><textarea rows="3" class="cue-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${cue}</textarea></div><div class="md:col-span-2"><label class="block text-sm font-medium text-slate-600 mb-1">Notes (Markdown supported)</label><textarea rows="3" class="notes-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${notes}</textarea></div></div>`;
             notesContainer.appendChild(notePair);
-
             const starBtn = notePair.querySelector('.star-btn');
             if (isImportant) starBtn.classList.add('is-important');
-            starBtn.addEventListener('click', () => {
-                notePair.classList.toggle('is-important');
-                starBtn.classList.toggle('is-important');
-            });
+            starBtn.addEventListener('click', () => { notePair.classList.toggle('is-important'); starBtn.classList.toggle('is-important'); });
             notePair.querySelector('.remove-btn').addEventListener('click', () => { notePair.remove(); updateMoveButtons(); });
             notePair.querySelector('.move-up-btn').addEventListener('click', () => { if (notePair.previousElementSibling) { notesContainer.insertBefore(notePair, notePair.previousElementSibling); updateMoveButtons(); } });
             notePair.querySelector('.move-down-btn').addEventListener('click', () => { if (notePair.nextElementSibling) { notesContainer.insertBefore(notePair.nextElementSibling, notePair); updateMoveButtons(); } });
@@ -230,9 +236,7 @@
         
         saveAppBtn.addEventListener('click', () => {
             const notePairsData = [];
-            document.querySelectorAll('.note-pair').forEach(pair => {
-                notePairsData.push({ cue: pair.querySelector('.cue-input').value, notes: pair.querySelector('.notes-input').value, isImportant: pair.classList.contains('is-important') });
-            });
+            document.querySelectorAll('.note-pair').forEach(pair => { notePairsData.push({ cue: pair.querySelector('.cue-input').value, notes: pair.querySelector('.notes-input').value, isImportant: pair.classList.contains('is-important') }); });
             const currentState = { topic: mainTopicInput.value, summary: summaryTextarea.value, pairs: notePairsData };
             let pageHtml = document.documentElement.outerHTML;
             const stateJson = JSON.stringify(currentState, null, 2);
@@ -242,34 +246,48 @@
             link.href = URL.createObjectURL(blob);
             const topic = mainTopicInput.value.trim() || 'cornell-notes';
             link.download = `${topic.toLowerCase().replace(/ /g, '-')}.html`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
             showNotification('✅ App with current notes saved!');
         });
 
         clearAllBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all notes? This will reset the app to its default state.')) {
-                mainTopicInput.value = '';
-                summaryTextarea.value = '';
-                notesContainer.innerHTML = '';
-                createNotePair();
-                updateMoveButtons();
+            if (confirm('Are you sure you want to clear all notes?')) {
+                mainTopicInput.value = ''; summaryTextarea.value = ''; notesContainer.innerHTML = '';
+                createNotePair(); updateMoveButtons();
                 showNotification('Notes have been cleared.');
             }
         });
 
         loadAppBtn.addEventListener('click', () => {
-            if (confirm('Loading a file will overwrite your current notes. Are you sure you want to continue?')) {
-                fileInput.click();
-            }
+            if (confirm('Loading a file will overwrite your current notes. Continue?')) { fileInput.click(); }
         });
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (file) {
-                loadStateFromFile(file);
-            }
+            if (file) loadStateFromFile(file);
             fileInput.value = '';
+        });
+
+        bulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'flex'; });
+        cancelBulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'none'; });
+        importBulkAddBtn.addEventListener('click', () => {
+            const text = bulkInputArea.value.trim();
+            const pairs = text.split(/\n\s*\n/); // Split by one or more blank lines
+            let count = 0;
+            pairs.forEach(p => {
+                const parts = p.split(/\n---\n/);
+                if (parts.length === 2) {
+                    const cue = parts[0].trim();
+                    const notes = parts[1].trim();
+                    if (cue || notes) {
+                        createNotePair(cue, notes);
+                        count++;
+                    }
+                }
+            });
+            updateMoveButtons();
+            bulkInputArea.value = '';
+            bulkAddModal.style.display = 'none';
+            if (count > 0) showNotification(`✅ Imported ${count} note pairs!`);
         });
 
         window.addEventListener('load', () => populateAppFromState(JSON.parse(document.getElementById('app-state').textContent || '{"pairs":[]}')));
@@ -282,10 +300,7 @@
         copyBtn.addEventListener('click', () => {
             previewOutput.select();
             previewOutput.setSelectionRange(0, 99999);
-            try {
-                document.execCommand('copy');
-                showNotification('✅ Code copied to clipboard!');
-            } catch (err) { alert('Could not copy text.'); }
+            try { document.execCommand('copy'); showNotification('✅ Code copied to clipboard!'); } catch (err) { alert('Could not copy text.'); }
         });
 
         exportMdBtn.addEventListener('click', () => {
@@ -314,22 +329,20 @@
             showNotification('✅ Markdown generated! You can copy the code below.');
         });
 
-        // --- UPDATED HTML EXPORT LOGIC ---
         exportHtmlBtn.addEventListener('click', () => {
             const topic = mainTopicInput.value.trim() || 'My Notes';
             const summary = summaryTextarea.value.trim();
             const notePairs = document.querySelectorAll('.note-pair');
-            let pairId = 0;
-            let notesHtml = '';
+            let pairId = 0, notesHtml = '';
             notePairs.forEach(pair => {
                 pairId++;
                 let cue = pair.querySelector('.cue-input').value.trim();
                 const notesMarkdown = pair.querySelector('.notes-input').value.trim();
                 const notesParsedHtml = marked.parse(notesMarkdown);
                 const isImportant = pair.classList.contains('is-important');
-                
+                const importantIndicator = isImportant ? '<span class="text-yellow-500 mr-2">⭐</span>' : '';
                 if (cue || notesParsedHtml) {
-                    notesHtml += `<div class="note-section bg-white rounded-lg shadow-sm overflow-hidden ${isImportant ? 'is-important' : ''}"><div class="grid grid-cols-12 gap-6 p-4"><div class="col-span-4 font-semibold text-slate-800 flex items-start gap-2 cue-trigger cursor-pointer" data-target="notes-${pairId}"><span class="indicator text-slate-400 mt-1">▶</span><span class="star-indicator-container">${isImportant ? '<span class="text-yellow-500 mr-2">⭐</span>' : ''}</span><span class="editable-cue flex-1">${cue}</span></div><div id="notes-${pairId}" class="col-span-7 prose max-w-none hidden editable-notes">${notesParsedHtml}</div><div class="col-span-1 flex justify-end items-start gap-1"><button class="star-section-btn p-1 rounded-full hover:bg-slate-200" title="Mark as important">⭐</button><button class="edit-section-btn p-1 rounded-full hover:bg-slate-200" title="Edit section"><svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"></path></svg></button></div></div></div>`;
+                    notesHtml += `<div class="note-section bg-white rounded-lg shadow-sm overflow-hidden ${isImportant ? 'is-important' : ''}"><div class="grid grid-cols-12 gap-6 p-4"><div class="col-span-4 font-semibold text-slate-800 flex items-start gap-2 cue-trigger cursor-pointer" data-target="notes-${pairId}"><span class="indicator text-slate-400 mt-1">▶</span><span class="star-indicator-container">${importantIndicator}</span><span class="editable-cue flex-1">${cue}</span></div><div id="notes-${pairId}" class="col-span-7 prose max-w-none hidden editable-notes">${notesParsedHtml}</div><div class="col-span-1 flex justify-end items-start gap-1"><button class="star-section-btn p-1 rounded-full hover:bg-slate-200" title="Mark as important">⭐</button><button class="edit-section-btn p-1 rounded-full hover:bg-slate-200" title="Edit section"><svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"></path></svg></button></div></div></div>`;
                 }
             });
             let summaryHtml = '';
