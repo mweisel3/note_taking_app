@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cornell Notes App - Advanced</title>
+    <title>Cornell Notes Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,26 +48,19 @@
         .star-btn.is-important {
             color: #facc15;
         }
-        .prose table { width: 100%; border-collapse: collapse; }
-        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 8px; }
-        .prose th { background-color: #f8fafc; }
-        .prose img { max-width: 100%; height: auto; border-radius: 8px; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
         <header class="text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Cornell Notes App</h1>
-            <p class="text-slate-500 mt-2">Save, load, and export your notes with rich content support.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Cornell Notes Editor</h1>
+            <p class="text-slate-500 mt-2">Create your notes and download them as JSON or Markdown.</p>
         </header>
         
         <div class="flex justify-end gap-2">
              <button id="bulk-add-btn" class="text-sm bg-purple-100 text-purple-700 font-semibold py-1 px-3 rounded-md hover:bg-purple-200">Bulk Add</button>
-             <button id="load-app-btn" class="text-sm bg-blue-100 text-blue-700 font-semibold py-1 px-3 rounded-md hover:bg-blue-200">Load from File</button>
-             <button id="save-app-btn" class="text-sm bg-green-600 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-700">Save Work</button>
              <button id="clear-all-btn" class="text-sm bg-red-100 text-red-700 font-semibold py-1 px-3 rounded-md hover:bg-red-200">Clear All</button>
-             <input type="file" id="file-input" class="hidden" accept=".html,.md">
         </div>
 
         <div>
@@ -90,39 +82,23 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-200">
-             <button id="export-md-btn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Export to Markdown</button>
-            <button id="export-html-btn" class="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-md">Export to HTML</button>
+            <button id="download-json-btn" title="Download as JSON" class="w-12 h-12 flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white font-bold text-2xl rounded-full shadow-md hover:shadow-lg transition-all transform hover:scale-110">
+                <span>{;}</span>
+            </button>
+            <button id="download-md-btn" title="Download as Markdown" class="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-2xl rounded-full shadow-md transition-all transform hover:scale-110">
+                <span>M↓</span>
+            </button>
         </div>
         
-        <div id="notification" class="hidden bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-lg text-center"></div>
-        
-        <div id="preview-container" class="hidden">
-            <div class="flex justify-between items-center mb-2">
-                <label for="preview-output" class="block text-lg font-semibold text-slate-700">Generated Code</label>
-                <div class="flex items-center gap-4">
-                    <button id="copy-btn" class="text-sm bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-1 px-3 rounded-lg">Copy</button>
-                    <button id="close-pane-btn" class="text-lg text-slate-500 hover:text-slate-800 font-bold">&times;</button>
-                </div>
-            </div>
-             <textarea id="preview-output" readonly class="w-full h-64 p-3 bg-slate-900 text-slate-100 font-mono text-sm border border-slate-600 rounded-lg resize-y"></textarea>
-        </div>
+        <div id="notification" class="hidden fixed bottom-5 right-5 bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-lg shadow-lg"></div>
     </div>
 
-    <!-- NEW: Bulk Add Modal -->
+    <!-- Bulk Add Modal -->
     <div id="bulk-add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl space-y-4">
             <h2 class="text-xl font-bold">Bulk Add Notes</h2>
             <div>
-                <p class="text-sm text-slate-600">Paste your notes below. Use a line with only <code class="bg-slate-200 text-slate-800 px-1 rounded">---</code> to separate a cue from its notes. Use a blank line to separate each cue/note pair.</p>
-                <p class="text-sm text-slate-600 mt-1"><strong>Example:</strong></p>
-                <pre class="bg-slate-100 p-2 rounded text-xs mt-1">What is the first question?
----
-- Note 1
-- Note 2
-
-What is the second question?
----
-- Note for question 2</pre>
+                <p class="text-sm text-slate-600">Paste notes below. Use <code class="bg-slate-200 text-slate-800 px-1 rounded">---</code> on its own line to separate a cue from its notes. Use a blank line to separate each pair.</p>
             </div>
             <textarea id="bulk-input-area" class="w-full h-64 p-2 border rounded font-mono text-sm"></textarea>
             <div class="flex justify-end gap-4">
@@ -132,233 +108,232 @@ What is the second question?
         </div>
     </div>
     
-    <script id="app-state" type="application/json"></script>
-
     <script>
-        const notesContainer = document.getElementById('notes-container');
-        const addPairBtn = document.getElementById('add-pair-btn');
-        const mainTopicInput = document.getElementById('main-topic');
-        const summaryTextarea = document.getElementById('summary');
-        const exportMdBtn = document.getElementById('export-md-btn');
-        const exportHtmlBtn = document.getElementById('export-html-btn');
-        const saveAppBtn = document.getElementById('save-app-btn');
-        const clearAllBtn = document.getElementById('clear-all-btn');
-        const loadAppBtn = document.getElementById('load-app-btn');
-        const fileInput = document.getElementById('file-input');
-        const notification = document.getElementById('notification');
-        const previewContainer = document.getElementById('preview-container');
-        const previewOutput = document.getElementById('preview-output');
-        const copyBtn = document.getElementById('copy-btn');
-        const closePaneBtn = document.getElementById('close-pane-btn');
-        const bulkAddBtn = document.getElementById('bulk-add-btn');
-        const bulkAddModal = document.getElementById('bulk-add-modal');
-        const cancelBulkAddBtn = document.getElementById('cancel-bulk-add');
-        const importBulkAddBtn = document.getElementById('import-bulk-add');
-        const bulkInputArea = document.getElementById('bulk-input-area');
+        // =================================================================
+        // Cornell Notes App - Editor Logic
+        // =================================================================
 
-        function populateAppFromState(state) {
-            mainTopicInput.value = state.topic || '';
-            summaryTextarea.value = state.summary || '';
-            notesContainer.innerHTML = ''; 
-            if (state.pairs && state.pairs.length > 0) {
-                state.pairs.forEach(pairData => createNotePair(pairData.cue, pairData.notes, pairData.isImportant));
-            } else { createNotePair(); }
-            updateMoveButtons();
-        }
+        document.addEventListener('DOMContentLoaded', () => {
 
-        function loadStateFromFile(file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const content = event.target.result;
-                let state;
-                try {
-                    if (file.name.endsWith('.html')) {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(content, 'text/html');
-                        const stateElement = doc.getElementById('app-state');
-                        if (!stateElement || !stateElement.textContent) throw new Error('Could not find saved data in this HTML file.');
-                        state = JSON.parse(stateElement.textContent);
-                    } else if (file.name.endsWith('.md')) {
-                        state = parseMarkdownToState(content);
-                    } else { throw new Error('Unsupported file type.'); }
-                    populateAppFromState(state);
-                    showNotification('✅ Notes loaded successfully!');
-                } catch (e) {
-                    showNotification(`❌ Error loading file: ${e.message}`);
-                    console.error(e);
+            // --- ELEMENT REFERENCES ---
+            const notesContainer = document.getElementById('notes-container');
+            const addPairBtn = document.getElementById('add-pair-btn');
+            const mainTopicInput = document.getElementById('main-topic');
+            const summaryTextarea = document.getElementById('summary');
+            const downloadJsonBtn = document.getElementById('download-json-btn');
+            const downloadMdBtn = document.getElementById('download-md-btn');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const notification = document.getElementById('notification');
+            
+            // Bulk Add Modal Elements
+            const bulkAddBtn = document.getElementById('bulk-add-btn');
+            const bulkAddModal = document.getElementById('bulk-add-modal');
+            const cancelBulkAddBtn = document.getElementById('cancel-bulk-add');
+            const importBulkAddBtn = document.getElementById('import-bulk-add');
+            const bulkInputArea = document.getElementById('bulk-input-area');
+
+            // --- CORE FUNCTIONS ---
+
+            function showNotification(message, isError = false) {
+                notification.textContent = message;
+                notification.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+                if (isError) {
+                    notification.classList.add('bg-red-100', 'text-red-800');
+                } else {
+                    notification.classList.add('bg-green-100', 'text-green-800');
                 }
-            };
-            reader.readAsText(file);
-        }
-
-        function parseMarkdownToState(markdown) {
-            const topicMatch = markdown.match(/^# (.*)/m);
-            const topic = topicMatch ? topicMatch[1] : '';
-            const summaryBlockMatch = markdown.match(/> \[!SUMMARY\] Summary\n((?:> .*\n?)*)/m);
-            const summary = summaryBlockMatch ? summaryBlockMatch[1].replace(/> /g, '').replace(/>/g, '').trim() : '';
-            const pairs = [];
-            const questionRegex = /> \[!QUESTION\]- (.*?)\n((?:> .*\n?)*)/g;
-            let match;
-            while ((match = questionRegex.exec(markdown)) !== null) {
-                const rawCue = match[1].trim();
-                const isImportant = rawCue.startsWith('⭐');
-                const cue = isImportant ? rawCue.substring(2).trim() : rawCue;
-                const notes = match[2].replace(/^> /gm, '').replace(/^>/gm, '').trim();
-                pairs.push({ cue, notes, isImportant });
+                setTimeout(() => notification.classList.add('hidden'), 4000);
             }
-            return { topic, summary, pairs };
-        }
 
-        function updateMoveButtons() {
-            const pairs = notesContainer.querySelectorAll('.note-pair');
-            pairs.forEach((pair, index) => {
-                pair.querySelector('.move-up-btn').disabled = (index === 0);
-                pair.querySelector('.move-down-btn').disabled = (index === pairs.length - 1);
-            });
-        }
-
-        function createNotePair(cue = '', notes = '', isImportant = false) {
-            const notePair = document.createElement('div');
-            notePair.className = 'note-pair p-5 bg-slate-50 rounded-xl space-y-4';
-            if (isImportant) notePair.classList.add('is-important');
-            notePair.innerHTML = `<div class="flex justify-end items-center gap-2"><button class="control-btn star-btn" title="Mark as important">⭐</button><button class="control-btn move-up-btn" title="Move Up">▲</button><button class="control-btn move-down-btn" title="Move Down">▼</button><button class="control-btn remove-btn text-red-500" title="Remove">×</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="md:col-span-1"><label class="block text-sm font-medium text-slate-600 mb-1">Cue / Question</label><textarea rows="3" class="cue-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${cue}</textarea></div><div class="md:col-span-2"><label class="block text-sm font-medium text-slate-600 mb-1">Notes (Markdown supported)</label><textarea rows="3" class="notes-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${notes}</textarea></div></div>`;
-            notesContainer.appendChild(notePair);
-            const starBtn = notePair.querySelector('.star-btn');
-            if (isImportant) starBtn.classList.add('is-important');
-            starBtn.addEventListener('click', () => { notePair.classList.toggle('is-important'); starBtn.classList.toggle('is-important'); });
-            notePair.querySelector('.remove-btn').addEventListener('click', () => { notePair.remove(); updateMoveButtons(); });
-            notePair.querySelector('.move-up-btn').addEventListener('click', () => { if (notePair.previousElementSibling) { notesContainer.insertBefore(notePair, notePair.previousElementSibling); updateMoveButtons(); } });
-            notePair.querySelector('.move-down-btn').addEventListener('click', () => { if (notePair.nextElementSibling) { notesContainer.insertBefore(notePair.nextElementSibling, notePair); updateMoveButtons(); } });
-        }
-        
-        addPairBtn.addEventListener('click', () => { createNotePair(); updateMoveButtons(); });
-        closePaneBtn.addEventListener('click', () => previewContainer.classList.add('hidden'));
-        
-        saveAppBtn.addEventListener('click', () => {
-            const notePairsData = [];
-            document.querySelectorAll('.note-pair').forEach(pair => { notePairsData.push({ cue: pair.querySelector('.cue-input').value, notes: pair.querySelector('.notes-input').value, isImportant: pair.classList.contains('is-important') }); });
-            const currentState = { topic: mainTopicInput.value, summary: summaryTextarea.value, pairs: notePairsData };
-            let pageHtml = document.documentElement.outerHTML;
-            const stateJson = JSON.stringify(currentState, null, 2);
-            pageHtml = pageHtml.replace(/<script id="app-state" type="application\/json">.*?<\/script>/s, `<script id="app-state" type="application/json">${stateJson}<\/script>`);
-            const blob = new Blob([pageHtml], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            const topic = mainTopicInput.value.trim() || 'cornell-notes';
-            link.download = `${topic.toLowerCase().replace(/ /g, '-')}.html`;
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            showNotification('✅ App with current notes saved!');
-        });
-
-        clearAllBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all notes?')) {
-                mainTopicInput.value = ''; summaryTextarea.value = ''; notesContainer.innerHTML = '';
-                createNotePair(); updateMoveButtons();
-                showNotification('Notes have been cleared.');
+            function updateMoveButtons() {
+                const pairs = notesContainer.querySelectorAll('.note-pair');
+                pairs.forEach((pair, index) => {
+                    pair.querySelector('.move-up-btn').disabled = (index === 0);
+                    pair.querySelector('.move-down-btn').disabled = (index === pairs.length - 1);
+                });
             }
-        });
 
-        loadAppBtn.addEventListener('click', () => {
-            if (confirm('Loading a file will overwrite your current notes. Continue?')) { fileInput.click(); }
-        });
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) loadStateFromFile(file);
-            fileInput.value = '';
-        });
+            function createNotePair(cue = '', notes = '', isImportant = false) {
+                const notePair = document.createElement('div');
+                notePair.className = 'note-pair p-5 bg-slate-50 rounded-xl space-y-4';
+                if (isImportant) {
+                    notePair.classList.add('is-important');
+                }
+                
+                notePair.innerHTML = `
+                    <div class="flex justify-end items-center gap-2">
+                        <button class="control-btn star-btn" title="Mark as important">⭐</button>
+                        <button class="control-btn move-up-btn" title="Move Up">▲</button>
+                        <button class="control-btn move-down-btn" title="Move Down">▼</button>
+                        <button class="control-btn remove-btn text-red-500" title="Remove">×</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-1">
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Cue / Question</label>
+                            <textarea rows="3" class="cue-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${cue}</textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Notes (Markdown supported)</label>
+                            <textarea rows="3" class="notes-input w-full p-2 bg-white border border-slate-300 rounded-md resize-y">${notes}</textarea>
+                        </div>
+                    </div>`;
+                
+                notesContainer.appendChild(notePair);
+                
+                const starBtn = notePair.querySelector('.star-btn');
+                if (isImportant) starBtn.classList.add('is-important');
 
-        bulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'flex'; });
-        cancelBulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'none'; });
-        importBulkAddBtn.addEventListener('click', () => {
-            const text = bulkInputArea.value.trim();
-            const pairs = text.split(/\n\s*\n/); // Split by one or more blank lines
-            let count = 0;
-            pairs.forEach(p => {
-                const parts = p.split(/\n---\n/);
-                if (parts.length === 2) {
-                    const cue = parts[0].trim();
-                    const notes = parts[1].trim();
-                    if (cue || notes) {
-                        createNotePair(cue, notes);
-                        count++;
+                starBtn.addEventListener('click', () => {
+                    notePair.classList.toggle('is-important');
+                    starBtn.classList.toggle('is-important');
+                });
+                notePair.querySelector('.remove-btn').addEventListener('click', () => {
+                    notePair.remove();
+                    updateMoveButtons();
+                });
+                notePair.querySelector('.move-up-btn').addEventListener('click', () => {
+                    if (notePair.previousElementSibling) {
+                        notesContainer.insertBefore(notePair, notePair.previousElementSibling);
+                        updateMoveButtons();
                     }
-                }
-            });
-            updateMoveButtons();
-            bulkInputArea.value = '';
-            bulkAddModal.style.display = 'none';
-            if (count > 0) showNotification(`✅ Imported ${count} note pairs!`);
-        });
+                });
+                notePair.querySelector('.move-down-btn').addEventListener('click', () => {
+                    if (notePair.nextElementSibling) {
+                        notesContainer.insertBefore(notePair.nextElementSibling, notePair);
+                        updateMoveButtons();
+                    }
+                });
 
-        window.addEventListener('load', () => populateAppFromState(JSON.parse(document.getElementById('app-state').textContent || '{"pairs":[]}')));
-
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.classList.remove('hidden');
-            setTimeout(() => notification.classList.add('hidden'), 4000);
-        }
-        copyBtn.addEventListener('click', () => {
-            previewOutput.select();
-            previewOutput.setSelectionRange(0, 99999);
-            try { document.execCommand('copy'); showNotification('✅ Code copied to clipboard!'); } catch (err) { alert('Could not copy text.'); }
-        });
-
-        exportMdBtn.addEventListener('click', () => {
-            const topic = mainTopicInput.value.trim();
-            const summary = summaryTextarea.value.trim();
-            const notePairs = document.querySelectorAll('.note-pair');
-            let notesContent = '';
-            notePairs.forEach(pair => {
-                let cue = pair.querySelector('.cue-input').value.trim();
-                const notes = pair.querySelector('.notes-input').value.trim();
-                if (pair.classList.contains('is-important')) cue = `⭐ ${cue}`;
-                if (cue || notes) {
-                    notesContent += `> [!QUESTION]- ${cue}\n`;
-                    notes.split('\n').forEach(line => { notesContent += `> ${line}\n`; });
-                    notesContent += `\n`;
-                }
-            });
-            let summaryContent = '';
-            if (summary) {
-                summaryContent += `> [!SUMMARY] Summary\n`;
-                summary.split('\n').forEach(line => summaryContent += `> ${line.trim()}\n`);
+                updateMoveButtons();
             }
-            const markdownString = `# ${topic || 'My Notes'}\n\n${notesContent.trim()}\n\n${summaryContent.trim()}`.trim();
-            previewOutput.value = markdownString;
-            previewContainer.classList.remove('hidden');
-            showNotification('✅ Markdown generated! You can copy the code below.');
-        });
 
-        exportHtmlBtn.addEventListener('click', () => {
-            const topic = mainTopicInput.value.trim() || 'My Notes';
-            const summary = summaryTextarea.value.trim();
-            const notePairs = document.querySelectorAll('.note-pair');
-            let pairId = 0, notesHtml = '';
-            notePairs.forEach(pair => {
-                pairId++;
-                let cue = pair.querySelector('.cue-input').value.trim();
-                const notesMarkdown = pair.querySelector('.notes-input').value.trim();
-                const notesParsedHtml = marked.parse(notesMarkdown);
-                const isImportant = pair.classList.contains('is-important');
-                const importantIndicator = isImportant ? '<span class="text-yellow-500 mr-2">⭐</span>' : '';
-                if (cue || notesParsedHtml) {
-                    notesHtml += `<div class="note-section bg-white rounded-lg shadow-sm overflow-hidden ${isImportant ? 'is-important' : ''}"><div class="grid grid-cols-12 gap-6 p-4"><div class="col-span-4 font-semibold text-slate-800 flex items-start gap-2 cue-trigger cursor-pointer" data-target="notes-${pairId}"><span class="indicator text-slate-400 mt-1">▶</span><span class="star-indicator-container">${importantIndicator}</span><span class="editable-cue flex-1">${cue}</span></div><div id="notes-${pairId}" class="col-span-7 prose max-w-none hidden editable-notes">${notesParsedHtml}</div><div class="col-span-1 flex justify-end items-start gap-1"><button class="star-section-btn p-1 rounded-full hover:bg-slate-200" title="Mark as important">⭐</button><button class="edit-section-btn p-1 rounded-full hover:bg-slate-200" title="Edit section"><svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"></path></svg></button></div></div></div>`;
+            // --- DATA HANDLING ---
+
+            function getAppState() {
+                const notePairsData = [];
+                document.querySelectorAll('.note-pair').forEach(pair => {
+                    notePairsData.push({
+                        cue: pair.querySelector('.cue-input').value,
+                        notes: pair.querySelector('.notes-input').value,
+                        isImportant: pair.classList.contains('is-important')
+                    });
+                });
+
+                return {
+                    topic: mainTopicInput.value,
+                    summary: summaryTextarea.value,
+                    pairs: notePairsData,
+                    lastModified: new Date().toISOString()
+                };
+            }
+
+            function saveNotesAsJson() {
+                const currentState = getAppState();
+                const stateJson = JSON.stringify(currentState, null, 2);
+                const topic = currentState.topic.trim() || 'untitled-notes';
+                const filename = `${topic.toLowerCase().replace(/[\s\W-]+/g, '-')}.json`;
+
+                const blob = new Blob([stateJson], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification('✅ Notes saved as JSON!');
+            }
+
+            function generateMarkdown(state) {
+                const { topic, summary, pairs } = state;
+                let notesContent = '';
+                pairs.forEach(pair => {
+                    let cue = pair.cue.trim();
+                    const notes = pair.notes.trim();
+                    if (pair.isImportant) cue = `⭐ ${cue}`;
+                    if (cue || notes) {
+                        notesContent += `> [!QUESTION]- ${cue}\n`;
+                        notes.split('\n').forEach(line => {
+                            notesContent += `> ${line}\n`;
+                        });
+                        notesContent += `\n`;
+                    }
+                });
+
+                let summaryContent = '';
+                if (summary) {
+                    summaryContent += `> [!SUMMARY] Summary\n`;
+                    summary.split('\n').forEach(line => {
+                        summaryContent += `> ${line.trim()}\n`;
+                    });
+                }
+
+                return `# ${topic || 'My Notes'}\n\n${notesContent.trim()}\n\n${summaryContent.trim()}`.trim();
+            }
+
+            function saveNotesAsMarkdown() {
+                const currentState = getAppState();
+                const markdownString = generateMarkdown(currentState);
+                const topic = currentState.topic.trim() || 'untitled-notes';
+                const filename = `${topic.toLowerCase().replace(/[\s\W-]+/g, '-')}.md`;
+
+                const blob = new Blob([markdownString], { type: 'text/markdown' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification('✅ Notes saved as Markdown!');
+            }
+
+            // --- EVENT LISTENERS ---
+
+            addPairBtn.addEventListener('click', () => createNotePair());
+            downloadJsonBtn.addEventListener('click', saveNotesAsJson);
+            downloadMdBtn.addEventListener('click', saveNotesAsMarkdown);
+
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all notes? This cannot be undone.')) {
+                    mainTopicInput.value = '';
+                    summaryTextarea.value = '';
+                    notesContainer.innerHTML = '';
+                    createNotePair();
+                    showNotification('Notes have been cleared.');
                 }
             });
-            let summaryHtml = '';
-            if (summary) {
-                summaryHtml = `<div class="mt-8"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-slate-800">Summary</h2><button class="edit-section-btn p-1 rounded-full hover:bg-slate-200" title="Edit summary"><svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"></path></svg></button></div><div class="prose max-w-none bg-white p-6 rounded-lg shadow-sm editable-summary">${marked.parse(summary)}</div></div>`;
-            }
-            const htmlTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${topic}</title><script src="https://cdn.tailwindcss.com"><\/script><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script><style>body{font-family:'Inter',sans-serif}.indicator{transition:transform .2s}.expanded .indicator{transform:rotate(90deg)}[contenteditable=true]{outline:2px solid #60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.4);background-color: #fefce8 !important;}.prose table{width:100%;border-collapse:collapse;margin-top:1em;margin-bottom:1em}.prose th,.prose td{border:1px solid #e2e8f0;padding:8px}.prose th{background-color:#f8fafc;font-weight:600}.prose img{max-width:100%;height:auto;border-radius:8px;margin-top:1em;margin-bottom:1em}.note-section.is-important{background-color:#fefce8;border:1px solid #fde047;}.star-section-btn.is-important{color:#facc15}<\/style></head><body class="bg-slate-100 text-slate-700 p-4 md:p-8"><div class="max-w-6xl mx-auto"><header class="text-center mb-8"><h1 class="text-4xl font-extrabold text-slate-900">${topic}</h1></header><div class="flex justify-end gap-2 mb-4"><button id="save-file-btn" class="bg-green-600 text-white font-semibold text-sm py-1 px-3 rounded-md hover:bg-green-700">Save File</button><button id="expand-all" class="bg-blue-100 text-blue-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-blue-200">Expand All</button><button id="collapse-all" class="bg-gray-200 text-gray-800 font-semibold text-sm py-1 px-3 rounded-md hover:bg-gray-300">Collapse All</button></div><main class="space-y-3">${notesHtml}</main>${summaryHtml}</div><script>const pencilIcon='<svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"><\/path><\/svg>';const checkIcon='<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"><\/path><\/svg>';function toggleSection(e,t){const n=e.dataset.target,o=document.getElementById(n),d=void 0===t?!o.classList.contains("hidden"):!t;d?(o.classList.add("hidden"),e.classList.remove("expanded")):(o.classList.remove("hidden"),e.classList.add("expanded"))}document.querySelectorAll(".cue-trigger").forEach(e=>{e.addEventListener("click",()=>toggleSection(e))}),document.getElementById("expand-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!0))}),document.getElementById("collapse-all").addEventListener("click",()=>{document.querySelectorAll(".cue-trigger").forEach(e=>toggleSection(e,!1))}),document.querySelectorAll(".edit-section-btn").forEach(e=>{e.addEventListener("click",()=>{const t=e.closest(".note-section,.mt-8"),n=t.querySelector(".editable-cue"),o=t.querySelector(".editable-notes"),d=t.querySelector(".editable-summary"),l="true"===n?.getAttribute("contenteditable")||"true"===d?.getAttribute("contenteditable");l?(e.innerHTML=pencilIcon,n?.setAttribute("contenteditable","false"),o?.setAttribute("contenteditable","false"),d?.setAttribute("contenteditable","false")):(e.innerHTML=checkIcon,n?.setAttribute("contenteditable","true"),o?.setAttribute("contenteditable","true"),d?.setAttribute("contenteditable","true"))})}),document.querySelectorAll(".star-section-btn").forEach(e=>{e.addEventListener("click",()=>{const t=e.closest(".note-section"),n=t.querySelector(".star-indicator-container"),o=t.classList.toggle("is-important");e.classList.toggle("is-important"),n.innerHTML=o?'<span class="text-yellow-500 mr-2">⭐</span>':""})}),document.getElementById("save-file-btn").addEventListener("click",()=>{document.body.style.display="none";const e=document.documentElement.outerHTML,t=new Blob([e],{type:"text/html"}),n=document.createElement("a");n.href=URL.createObjectURL(t);const o=document.querySelector("title").textContent.toLowerCase().replace(/ /g,"-")+"-notes.html";n.download=o,document.body.appendChild(n),n.click(),document.body.removeChild(n),setTimeout(()=>{document.body.style.display=""},100)});<\/script></body></html>`;
-            const blob = new Blob([htmlTemplate], { type: 'text/html' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${topic.toLowerCase().replace(/ /g, '-')}-notes.html`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showNotification('✅ Editable HTML file with rich content download started!');
+
+            bulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'flex'; });
+            cancelBulkAddBtn.addEventListener('click', () => { bulkAddModal.style.display = 'none'; });
+
+            importBulkAddBtn.addEventListener('click', () => {
+                const text = bulkInputArea.value.trim();
+                if (!text) return;
+                const pairs = text.split(/\n\s*\n/);
+                let count = 0;
+                pairs.forEach(p => {
+                    const parts = p.split(/\n---\n/);
+                    if (parts.length === 2) {
+                        const cue = parts[0].trim();
+                        const notes = parts[1].trim();
+                        if (cue || notes) {
+                            createNotePair(cue, notes);
+                            count++;
+                        }
+                    }
+                });
+                bulkInputArea.value = '';
+                bulkAddModal.style.display = 'none';
+                if (count > 0) showNotification(`✅ Imported ${count} note pairs!`);
+            });
+
+            // --- INITIALIZATION ---
+            createNotePair();
         });
     </script>
+    
 </body>
 </html>
