@@ -1,10 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* --- Local Fonts (Pointing to your C: Drive) --- */
-/* Note: Browsers only allow local file access if you open the HTML as a file */
+@theme {
+  --font-sans: "Inter", sans-serif;
+}
 
+/* --- Local Fonts --- */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -33,8 +33,7 @@
   src: url('file:///C:/Users/mewei/Fonts/Inter/Inter-Bold.ttf') format('truetype');
 }
 
-/* --- Custom Components (From previous style.css) --- */
-
+/* --- Custom Components --- */
 @layer components {
   .control-btn {
     @apply bg-slate-200 text-slate-600 rounded-full w-7 h-7 inline-flex items-center justify-center text-lg leading-none transition-all duration-200;
@@ -55,27 +54,25 @@
   }
 }
 
-/* --- Global Utilities --- */
+/* --- Global Utilities & Overrides --- */
+@layer base {
+  textarea:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
+    border-color: #60a5fa;
+  }
 
-body {
-  font-family: 'Inter', sans-serif;
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+  .note-pair:last-child { border-bottom: none; }
 }
-
-textarea:focus, input:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
-  border-color: #60a5fa;
-}
-
-/* Scrollbars */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-.note-pair:last-child { border-bottom: none; }
 
 /* --- Viewer Specific Styles --- */
+/* These use standard CSS syntax, which works fine in v4 */
 
 .prose ul { list-style-type: disc; padding-left: 1.5em; margin: 0.5em 0; }
 .prose ol { list-style-type: decimal; padding-left: 1.5em; margin: 0.5em 0; }
@@ -83,7 +80,6 @@ textarea:focus, input:focus {
 .prose blockquote { border-left: 4px solid #cbd5e1; padding-left: 1em; color: #64748b; font-style: italic; }
 .prose code { background-color: #f1f5f9; padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; font-size: 0.9em; }
 
-/* Study Mode Blur */
 .study-mode .note-content {
     filter: blur(8px);
     user-select: none;
