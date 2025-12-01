@@ -1,0 +1,47 @@
+body { font-family: 'Inter', sans-serif; }
+
+textarea:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
+    border-color: #60a5fa;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+.note-pair:last-child { border-bottom: none; }
+
+/* Control Buttons */
+.control-btn {
+    background-color: #e2e8f0;
+    color: #475569;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: all 0.2s;
+}
+.control-btn:hover {
+    background-color: #cbd5e1;
+    transform: scale(1.1);
+}
+.control-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Important / Star Styling */
+.note-pair.is-important {
+    background-color: #fefce8;
+    border: 1px solid #fde047;
+}
+.star-btn.is-important {
+    color: #facc15;
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cornell Notes Editor</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="note_taking.png">
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+        <header class="text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Cornell Notes Editor</h1>
+            <p class="text-slate-500 mt-2">Create your notes, export them, or upload to resume working.</p>
+        </header>
+
+        <div class="flex justify-end gap-2">
+             <input type="file" id="import-file-input" accept=".json,.md" class="hidden">
+
+             <button id="import-btn" class="text-sm bg-blue-100 text-blue-700 font-semibold py-1 px-3 rounded-md hover:bg-blue-200 flex items-center gap-1">
+                <span>📂</span> Import JSON/MD
+             </button>
+             <button id="bulk-add-btn" class="text-sm bg-purple-100 text-purple-700 font-semibold py-1 px-3 rounded-md hover:bg-purple-200">Bulk Add</button>
+             <button id="clear-all-btn" class="text-sm bg-red-100 text-red-700 font-semibold py-1 px-3 rounded-md hover:bg-red-200">Clear All</button>
+        </div>
+
+        <div>
+            <label for="main-topic" class="block text-lg font-semibold text-slate-700 mb-2">Main Topic</label>
+            <input type="text" id="main-topic" placeholder="e.g., Principles of Cell and Membrane Function" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg transition duration-200">
+        </div>
+
+        <div id="notes-container" class="space-y-5"></div>
+
+        <div class="flex justify-center">
+            <button id="add-pair-btn" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-2 px-4 rounded-lg transition-all duration-200">
+                + Add Cue / Note Pair
+            </button>
+        </div>
+
+        <div>
+            <label for="summary" class="block text-lg font-semibold text-slate-700 mb-2">Summary</label>
+            <textarea id="summary" placeholder="In short, the plasma membrane is a selective barrier..." class="w-full h-40 p-3 bg-slate-50 border border-slate-300 rounded-lg resize-y transition duration-200"></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-200">
+            <button id="download-json-btn" title="Download as JSON" class="w-12 h-12 flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white font-bold text-2xl rounded-full shadow-md hover:shadow-lg transition-all transform hover:scale-110">
+                <span>{;}</span>
+            </button>
+            <button id="download-md-btn" title="Download as Markdown" class="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-2xl rounded-full shadow-md transition-all transform hover:scale-110">
+                <span>M↓</span>
+            </button>
+        </div>
+
+        <div id="notification" class="hidden fixed bottom-5 right-5 bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-lg shadow-lg"></div>
+    </div>
+
+    <div id="bulk-add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl space-y-4">
+            <h2 class="text-xl font-bold">Bulk Add Notes</h2>
+            <div>
+                <p class="text-sm text-slate-600">Paste notes below. Use <code class="bg-slate-200 text-slate-800 px-1 rounded">---</code> on its own line to separate a cue from its notes. Use a blank line to separate each pair.</p>
+            </div>
+            <textarea id="bulk-input-area" class="w-full h-64 p-2 border rounded font-mono text-sm"></textarea>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-bulk-add" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg">Cancel</button>
+                <button id="import-bulk-add" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg">Import Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+</body>
+</html>
