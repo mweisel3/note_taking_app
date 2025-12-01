@@ -4,34 +4,38 @@
   --font-sans: "Inter", sans-serif;
 }
 
-/* --- Local Fonts (Updated Paths: pointing to ./Inter/ folder) --- */
+/* --- Local Fonts (Updated to match your filenames) --- */
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  src: url('./Inter/Inter-Regular.ttf') format('truetype');
+  /* Matches "Inter_18pt-Regular" in your screenshot */
+  src: url('./Inter/static/Inter_18pt-Regular.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
-  src: url('./Inter/Inter-Medium.ttf') format('truetype');
+  /* Matches "Inter_18pt-Medium" in your screenshot */
+  src: url('./Inter/static/Inter_18pt-Medium.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
-  src: url('./Inter/Inter-SemiBold.ttf') format('truetype');
+  /* Matches "Inter_18pt-SemiBold" in your screenshot */
+  src: url('./Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
-  src: url('./Inter/Inter-Bold.ttf') format('truetype');
+  /* Matches "Inter_18pt-Bold" in your screenshot */
+  src: url('./Inter/static/Inter_18pt-Bold.ttf') format('truetype');
 }
 
 /* --- Custom Components --- */
@@ -73,7 +77,6 @@
 }
 
 /* --- Viewer Specific Styles --- */
-
 .prose ul { list-style-type: disc; padding-left: 1.5em; margin: 0.5em 0; }
 .prose ol { list-style-type: decimal; padding-left: 1.5em; margin: 0.5em 0; }
 .prose p { margin-bottom: 0.5em; }
