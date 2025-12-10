@@ -1,0 +1,12 @@
+{
+  "name": "cornell-notes-editor",
+  "version": "1.0.0",
+  "description": "Local version of Cornell Notes Editor",
+  "main": "index.html",
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o dist/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}

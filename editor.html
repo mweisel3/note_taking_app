@@ -4,24 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cornell Notes Editor</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
-
-    <link href="output.css" rel="stylesheet">
+    <!-- Added ?v=2 to force the browser to reload the file -->
+    <link href="./dist/output.css?v=2" rel="stylesheet">
 </head>
 <body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
         <header class="text-center">
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Cornell Notes Editor</h1>
-            <p class="text-slate-500 mt-2">Create your notes, export them, or upload to resume working.</p>
+            <p class="text-slate-500 mt-2">Create your notes and download them as JSON or Markdown.</p>
         </header>
 
         <div class="flex justify-end gap-2">
-             <input type="file" id="import-file-input" accept=".json,.md" class="hidden">
-
-             <button id="import-btn" class="text-sm bg-blue-100 text-blue-700 font-semibold py-1 px-3 rounded-md hover:bg-blue-200 flex items-center gap-1">
-                <span>📂</span> Import JSON/MD
-             </button>
              <button id="bulk-add-btn" class="text-sm bg-purple-100 text-purple-700 font-semibold py-1 px-3 rounded-md hover:bg-purple-200">Bulk Add</button>
              <button id="clear-all-btn" class="text-sm bg-red-100 text-red-700 font-semibold py-1 px-3 rounded-md hover:bg-red-200">Clear All</button>
         </div>
@@ -56,6 +50,7 @@
         <div id="notification" class="hidden fixed bottom-5 right-5 bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-lg shadow-lg"></div>
     </div>
 
+    <!-- Bulk Add Modal -->
     <div id="bulk-add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl space-y-4">
             <h2 class="text-xl font-bold">Bulk Add Notes</h2>
@@ -70,7 +65,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
-    
+    <script src="editor.js" defer></script>
 </body>
 </html>

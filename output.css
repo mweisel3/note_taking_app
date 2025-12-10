@@ -921,25 +921,25 @@
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  src: url('./Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+  src: url('dist/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
-  src: url('./Inter/static/Inter_18pt-Medium.ttf') format('truetype');
+  src: url('dist/Inter/static/Inter_18pt-Medium.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
-  src: url('./Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+  src: url('dist/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
-  src: url('./Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+  src: url('dist/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
 }
 @layer components {
   .control-btn {
